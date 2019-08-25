@@ -1,0 +1,75 @@
+---
+title: "Lecture 2"
+author: "Chiong"
+date: "8/25/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr) 
+library(stargazer)
+library(RPostgres)
+library(logKDE)
+```
+
+### Probability integral transformation
+
+Draw $n=1000$ random uniform numbers: $(u_{1},\dots,u_{n})$ from $U[0,1]$. Plot a histpgram of these random uniform numbers.
+
+
+```{r}
+u <- runif(1000,min=0, max=1)
+hist(u)
+```
+
+### Inverse CDF
+
+Our target cdf is: $F_{X}(x) = 1- \exp(-x)$, which is the exponential distribution with $\lambda = 1$. The general cdf is $F_{X}(x) = 1- \exp(-\lambda x)$, with the pdf $f_{X}(x) = \lambda \exp(-\lambda x)$.
+
+The inverse of this cdf is: $\log(\frac{1}{1-u_{i}})$
+
+```{r}
+x <- log(1/(1-u))
+hist(x)
+hist(x,prob=TRUE)
+lines(density(x))
+```
+
+### Comparison with the R's exponential distribution
+
+```{r}
+r <- rexp(1000, rate = 1)
+hist(r)
+hist(r, prob=TRUE)
+lines(density(r)) 
+lines(density(x),col="blue", lwd=2,lty="dotted")
+```
+
+### Comparison with the theoretical pdf
+
+
+```{r}
+z <- seq(from = 0, to = 5, by = 0.05)
+plot(z,exp(-z))
+lines(density(x),col="blue", lwd=2,lty="dotted")
+```
+
+### Log-transformation
+
+```{r}
+hist(log(x), prob=TRUE)
+lines(density(log(x)))
+```
+The pdf of $Y= log(X)$ is?
+
+$F_{Y}(y) = P(Y<=y) = P(log(X)<=y) = P(X<=e^{y}) = 1-e^{-e^{y}}$.
+
+Therefore the pdf of $Y$ is $f_{Y}(y) = e^{y}e^{-e^{y}}$
+
+```{r}
+z <- seq(from = -5, to = 2, by = 0.05)
+plot(z,exp(z)*exp(-exp(z)))
+lines(density(log(x)))
+```
+
