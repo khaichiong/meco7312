@@ -15,7 +15,7 @@ library(logKDE)
 
 ### Probability integral transformation
 
-Draw $n=1000$ random uniform numbers: $(u_{1},\dots,u_{n})$ from $U[0,1]$. Plot a histpgram of these random uniform numbers.
+Draw $n=1000$ random uniform numbers: $(u_{1},\dots,u_{n})$ from $U[0,1]$. Plot a histogram of these random uniform numbers.
 
 
 ```{r}
@@ -73,3 +73,43 @@ plot(z,exp(z)*exp(-exp(z)))
 lines(density(log(x)))
 ```
 
+## Mean and median of Exponential distribution
+
+```{r}
+r <- rexp(10000, rate = 2)
+mean(r)
+median(r)
+var(r)
+```
+
+## Varying lambda
+
+
+```{r}
+r <- matrix(, nrow = 0, ncol = 10000)
+for (i in seq(from=0.1, to=5, by=0.1)) {
+  r<- rbind(r,rexp(10000, rate = i))
+}
+plot(seq(from=0.1, to=5, by=0.1),apply(r,1,mean)) 
+plot(seq(from=0.1, to=5, by=0.1),apply(r,1,median)) 
+plot(seq(from=0.1, to=5, by=0.1),apply(r,1,var))
+```
+
+
+## Mean and median of Log-Exponential 
+
+```{r}
+mean(log(x))
+median(log(x))
+var(log(x))
+```
+
+```{r}
+r <- matrix(, nrow = 0, ncol = 10000)
+for (i in seq(from=0.1, to=8, by=0.05)) {
+  r<- rbind(r,log(rexp(10000, rate = i)))
+}
+plot(seq(from=0.1, to=8, by=0.05),apply(r,1,mean)) 
+plot(seq(from=0.1, to=8, by=0.05),apply(r,1,median)) 
+plot(seq(from=0.1, to=8, by=0.05),apply(r,1,var))
+```
