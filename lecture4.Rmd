@@ -1,0 +1,47 @@
+---
+title: "Lecture 4"
+author: "Chiong"
+date: "9/10/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(mvtnorm)
+library(plot3D)
+```
+
+## Gibbs sampling
+
+How do we sample from a bivariate Normal? We use conditional distribution. 
+
+```{r}
+x <- rnorm(n=1000,mean=0,sd=1)
+r <- 0.5 #correlation parameter
+y <- rnorm(n=1000,mean=r*x,sd=sqrt((1-r^2)))
+plot(x,y)
+```
+
+Using R's random number generators of multivariate Normals
+
+```{r}
+z<- rmvnorm(n=1000, mean=c(0,0), sigma = rbind(c(1,0.5),c(0.5,1)))
+plot(z)
+```
+
+
+## Two random variables that are each marginally Normal, but not jointly Normal
+
+```{r}
+x <- rnorm(n=1000, mean=0, sd = 1)
+u <-rbinom(n=1000,size=1,prob=0.5)
+u <-2*u-1
+y <- x*u
+hist(y,freq = 0)
+lines(density(y))
+plot(x,y)
+```
+
+## Copulas
+
+In general, we can generate a multivariate cdf from individual marginal cdf using $F(x,y) = C(F_{X}(x),F_{Y}(y))$, where $C$ is known as the Copula function. This is the Sklar's theorem.
+
