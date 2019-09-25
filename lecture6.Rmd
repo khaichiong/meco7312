@@ -1,0 +1,218 @@
+---
+title: "Lecture 6"
+author: "Chiong"
+date: "9/24/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Order statistics
+
+```{r}
+n <- 100
+s <- 1000
+mu <- 0
+sd <- 1
+x <- matrix(rnorm(n*s,mu,sd), nrow = n, ncol=s) 
+xn <- apply(x, MARGIN = 2, max, na.rm = TRUE) #largest-order statistics
+#histogram of largest-order statistics
+hist(xn,freq = 0)
+
+#compare with the theoretical density
+z <- seq(min(xn),max(xn),0.05)
+fx <- n*(pnorm(z,mu,sd)^(n-1))*dnorm(z,mu,sd)
+lines(z,fx)
+
+
+#expectation of the largest-order statistics as sample size increases
+r<- 0
+z<- seq(from=5, to=1000, length.out = 200)
+for (i in seq(from=5, to=1000, length.out = 200)) {
+  x <- matrix(rnorm(i*s,mu,sd), nrow = i, ncol=s) 
+  xn <- apply(x, MARGIN = 2, max, na.rm = TRUE)
+  r<- rbind(r,mean(xn))
+}
+r<- r[-1]
+plot(z,r)
+```
+
+## Order statistics for Uniform distribution
+
+```{r}
+n <- 100
+s <- 1000
+mu <- 0
+sd <- 1
+x <- matrix(rnorm(n*s,mu,sd), nrow = n, ncol=s) 
+xn <- apply(x, MARGIN = 2, max, na.rm = TRUE) #largest-order statistics
+#histogram of largest-order statistics
+hist(xn,freq = 0)
+
+#compare with the theoretical density
+z <- seq(min(xn),max(xn),length.out = 200)
+fx <- n*(pnorm(z,mu,sd)^(n-1))*dnorm(z,mu,sd)
+lines(z,fx)
+
+
+#expectation of the largest-order statistics as sample size increases
+r<- 0
+for (i in seq(from=5, to=1000, by=10)) {
+  x <- matrix(rnorm(i*s,mu,sd), nrow = i, ncol=s) 
+  xn <- apply(x, MARGIN = 2, max, na.rm = TRUE)
+  r<- rbind(r,mean(xn))
+}
+r<- r[-1]
+plot(seq(from=5, to=1000, by=10),r)
+```
+
+## Strong law of large numbers
+
+
+Convergence almost surely vs. convergence in probability
+
+
+```{r}
+mu <- -2
+sd <- 1
+r<- 0
+z <- seq(from=10, to=10000, length.out = 100)
+for (n in z) {
+  x <- rnorm(n,mu,sd)
+  r<- rbind(r,mean(x))
+}
+r<-r[-1]
+plot(z,r)
+
+
+#convegence in probability does not imply convergence almost surely
+N <- seq(from=10, to=10000, length.out = 100)
+x <- 0
+for (n in N) {
+  u <- runif(1,0,1)
+  x <- rbind(x,as.numeric(u<(1/n)))
+}
+xn <- x[-1]
+plot(N,xn)
+
+
+```
+
+```{r}
+mu <- -2
+sd <- 1
+s <- 100
+r<- 0
+N <- seq(from=10, to=1000, length.out = 100)
+for (n in N) {
+  x <- matrix(rnorm(n*s,mu,sd),nrow = n, ncol = s)
+  r <- rbind(r,t(apply(x,2,mean)))
+}
+r<-r[-1,]
+plot(N,r[,1])
+
+for (i in seq(2,s)) {
+  points(N,r[,i])
+}
+```
+```{r}
+N <- seq(from=10, to=10000, length.out = 100)
+x <- 0
+s <- 1000
+for (n in N) {
+  u <- matrix(runif(s,0,1),nrow = 1, ncol = s)
+  x <- rbind(x,as.numeric(u<(1/n)))
+}
+xn <- x[-1,]
+plot(N,xn[,1])
+
+for (i in seq(2,s)) {
+  points(N,xn[,i])
+}
+
+```
+
+# Convergence in distribution
+
+```{r}
+n <- 10000
+x <- max(runif(n,0,1))
+e <- n*(1-x)
+e
+```
+
+```{r}
+for (i in seq(1,1000)) {
+  x<-max(runif(n,0,1))
+  e <- rbind(e,n*(1-x))
+}
+hist(e)
+```
+
+## Sample standard deviation is a biased but consistent estimator
+
+
+```{r}
+n <- 5
+s <- 10000
+mu <- 0
+sd <- 1
+x <- matrix(rnorm(n*s,mu,sd), nrow = n, ncol=s) 
+v <- apply(x,2,function(y) var(y))
+s1 <- apply(x,2,function(y) sqrt(var(y)))
+s2 <- apply(x,2,sd)
+mean(v)
+mean(s1)
+mean(s2)
+```
+
+
+## Central Limit Theorem
+
+```{r}
+n <- 1000
+s <- 10000
+lm <- 2
+x <- matrix(rexp(n*s,lm), nrow = n, ncol=s) 
+m <- apply(x,2,mean)
+# sample mean - 1/lm converges to zero
+hist(m-1/lm)
+# but sqrt(n)*(sample mean - 1/lm) converges to?
+hist(sqrt(n)*(m- 1/lm),freq = 0)
+
+z <- seq(min(sqrt(n)*(m- 1/lm)),max(sqrt(n)*(m- 1/lm)),length.out = 200)
+lines(z,dnorm(z,mean=0,sd=1/lm))
+```
+```{r}
+n <- 100
+s <- 10000
+lm <- 2
+x <- matrix(rexp(n*s,lm), nrow = n, ncol=s) 
+m <- apply(x,2,mean)
+# sampling distribution of sample mean
+hist(m,freq = 0)
+
+#compare with the asymptotic approximation of of Normal with mean = 1/lm, variance = 1/(n*lm^2)
+z <- seq(min(m),max(m),length.out = 500)
+lines(z,dnorm(z,mean=1/lm,sd=1/(sqrt(n)*lm)))
+```
+## Delta method
+
+```{r}
+p<-0.5
+n<-100
+s<-5000
+x <- matrix(rbinom(n*s,1,p),nrow = n, ncol = s)
+v <- apply(x,2,var)
+hist(v, freq = 0)
+
+#the asymptotic sampling distribution obtained using delta method is Normal with mean = p(1-p), var = (p(1-p)(1-2p)^2)/n
+
+z <- seq(min(v),max(v),length.out = 500)
+lines(z,dnorm(z,mean=p*(1-p),sd=sqrt((p*(1-p)*(1-2*p)^2)/n)))
+```
+
+
