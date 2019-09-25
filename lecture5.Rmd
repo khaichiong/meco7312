@@ -1,0 +1,124 @@
+---
+title: "Lecture 5"
+author: "Chiong"
+date: "9/18/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(RColorBrewer)
+library(MASS)
+library(mvtnorm)
+```
+
+## Copulas
+
+Sampling from a bivariate Frank copula
+
+```{r}
+theta <- 9 #parameter of the Frank copula
+u <- runif(n=5000, min = 0, max = 1) 
+z <- runif(n=5000, min = 0, max = 1) 
+v <- log(exp(theta)*(-1+z-exp(u*theta)*z)/(exp(theta)*(-1+z) - z*exp(u*theta)))/theta
+x <- qnorm(u, mean=0, sd=1)
+y <- qnorm(v, mean=0, sd=1)
+plot(x,y)
+
+
+# pretty plot
+my.cols <- rev(brewer.pal(11, "RdYlBu"))
+# compute 2D kernel density, see MASS book, pp. 130-131
+z <- kde2d(x, y, n=100)
+X<-cbind(x,y)
+plot(cbind(x,y), xlab="X label", ylab="Y label", pch=19, cex=.4)
+contour(z, drawlabels=FALSE, nlevels=11, col=my.cols, add=TRUE)
+abline(h=mean(X[,2]), v=mean(X[,1]), lwd=2)
+legend("topleft", paste("R=", round(cor(X)[1,2],2)), bty="n")
+
+
+# compare to the bivariate Normal with the same correlation
+X<- rmvnorm(n=5000, mean=c(0,0), sigma = rbind(c(1,0.79),c(0.79,1)))
+z <- kde2d(X[,1], X[,2], n=100)
+plot(X, xlab="X label", ylab="Y label", pch=19, cex=.4)
+contour(z, drawlabels=FALSE, nlevels=11, col=my.cols, add=TRUE)
+abline(h=mean(X[,2]), v=mean(X[,1]), lwd=2)
+legend("topleft", paste("R=", round(cor(X)[1,2],2)), bty="n")
+
+```
+
+
+## Illustrate the sampling distribution of the sample means
+
+If we draw a sample of $n$ observations from a population with $\mathcal{N}(\mu, \sigma^{2})$, the sampling distribution of the sample mean is $\mathcal{N}(\mu,\sigma^2/n)$.
+
+```{r}
+n <- 20 #sample size
+s <- 10000 #number of experiments
+mu <- 1
+sd <- 2
+x <- matrix(rnorm(n*s,mu,sd), nrow = n, ncol=s) 
+sample_means <- colMeans(x) #take the sample mean of each experiment 
+hist(sample_means,freq = FALSE) #plot the sampling distribution of the sample means
+lines(density(sample_means)) 
+
+#Theoretically the sampling distribution is N(mu,sigma^2/n)
+mean(sample_means)
+mu
+var(sample_means)
+(sd^2)/n
+
+#Compare with the theoretical sampling density
+z <- seq(min(sample_means),max(sample_means),0.01)
+lines(z,dnorm(z, mu, sqrt((sd^2)/n)),col="blue", lwd=2,lty="dotted")
+
+```
+
+## Illustrate the sampling distribution of the sample variance
+
+
+
+```{r}
+n <- 100 #sample size
+s <- 500 #number of experiments
+mu <- 1
+sd <- 2
+x <- matrix(rnorm(n*s, mu, sd), nrow = n, ncol=s) 
+sample_means <- colMeans(x) 
+sample_variance <- colSums((x-sample_means)^2)/(n-1)    #take the sample variance of each experiment 
+normalized_sample_variance <- (n-1)*sample_variance/sd^2
+hist(normalized_sample_variance,freq = FALSE) #plot the sampling distribution of the sample means
+lines(density(normalized_sample_variance)) 
+
+#Theoretically the sampling distribution of the sample variance is Chi-squared with n-1 degrees of freedom
+z <- seq(min(normalized_sample_variance),max(normalized_sample_variance),0.5)
+lines(z,dchisq(z, df=n-1),col="blue", lwd=2,lty="dotted")
+
+#The mean of the sample variance should be sd^2
+mean(sample_variance)
+sd^2
+
+#The variance of the sample variance should be 2*sd^4/(n-1)
+var(sample_variance)
+2*sd^4/(n-1)
+```
+
+## Illustrate the sampling distribution of the standardized mean
+
+```{r}
+n <- 5 #sample size
+s <- 10000 #number of experiments
+mu <- 1
+sd <- 2
+x <- matrix(rnorm(n*s, mu, sd), nrow = n, ncol=s) 
+sample_means <- colMeans(x) 
+sample_variance <- colSums((x-sample_means)^2)/(n-1) 
+standardized_means <- (sample_means-mu)/(sqrt(sample_variance/n))
+hist(standardized_means,freq = FALSE)
+lines(density(standardized_means))
+
+#compare with the Normal density
+z <- seq(-4,4,0.01)
+lines(z,dnorm(z, 0,1),col="blue", lwd=2,lty="dotted")
+
+```
+
