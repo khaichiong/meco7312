@@ -6,3 +6,5 @@ These are R Markdown files that you can run using RStudio. https://rmarkdown.rst
 * Lecture 2: Sampling from a scalar random variable using probability integral transformation.
 
 * Lecture 4: Gibbs sampling, sampling from a multivariate Normal.
+
+* Lecture 12: Monte Carlo sampling. Importance sampling. Exact and asymptotic tests and power functions.
