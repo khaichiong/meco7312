@@ -1,0 +1,233 @@
+---
+title: "Lecture 11"
+author: "Chiong"
+date: "10/30/2019"
+output: html_document
+---
+
+```{r setup}
+library(dplyr) 
+library(tidyverse)
+```
+
+
+```{r}
+p0 <- 0.6 #null hypothesis
+n <- 100 #sample size
+s <- 1000 #number of simulations
+
+#generate data
+x <- matrix(rbernoulli(n*s, p0), nrow = n, ncol=s) 
+#sample mean for each column
+m <- apply(x,2,mean) 
+
+#Likelihood ratio test statistics across simulations
+lr <- ((p0/m)^(m*n))*((1-p0)/(1-m))^(n-m*n)
+```
+
+## For n large, verify that the Likelihood Ratio Test statistic converges in distribution to the Chi-Squared distribution.
+
+```{r}
+hist(-2*log(lr),breaks = 20, probability = TRUE) 
+
+#comparing histogram with the pdf of chi-squared distribution
+z <- seq(min(-2*log(lr)),max(-2*log(lr)),0.01)
+lines(z,dchisq(z, 1),col="blue", lwd=4,lty="dotted")
+```
+
+## Find the exact size-0.05 test
+
+```{r}
+p0 <- 0.6 #null hypothesis
+n <- 100 #sample size
+s <- 1000 #number of simulations
+
+#generate data
+x <- matrix(rbernoulli(n*s, p0), nrow = n, ncol=s) 
+#sample mean for each column
+m <- apply(x,2,mean) 
+
+#Likelihood ratio test statistics across simulations
+lr <- ((p0/m)^(m*n))*((1-p0)/(1-m))^(n-m*n)
+
+#the exact critical value for a size-0.05 likelihood ratio test is:
+quantile(lr, c(0.05),type =4)
+
+#the quantile function implements the inverse cdf. we verify that it is indeed the case:
+sum(lr<=quantile(lr, c(0.05),type =4))/s #should be close to 0.05
+
+#the asymptotic critical value is 0.1465
+```
+## Using simulation to derive the power function
+
+```{r}
+p0 <- 0.6 #null hypothesis
+n <- 100 #sample size
+s <- 1000 #number of simulations
+
+#support of the power function
+psupport <- seq(from=0.1, to=0.9, length.out = 50) 
+
+#stores the values of the power function
+B <- vector('numeric')
+
+for (p in psupport) {
+  
+  #generate data
+  x <- matrix(rbernoulli(n*s, p), nrow = n, ncol=s) 
+  #sample mean for each column
+  m <- apply(x,2,mean) 
+  
+  #Likelihood ratio test statistics across simulations
+  lr <- ((p0/m)^(m*n))*((1-p0)/(1-m))^(n-m*n)
+  B <- rbind(B,sum(lr<0.1465)/s)
+}
+
+plot(psupport, B, ylim = c(0,1),type = "o",col ="blue",ylab="Power Function",xlab = "p")
+```
+## Now compare the power function for using the exact critical values
+
+```{r}
+p0 <- 0.6 #null hypothesis
+n <- 100 #sample size
+s <- 1000 #number of simulations
+
+#first, find the exact critical value
+x <- matrix(rbernoulli(n*s, p0), nrow = n, ncol=s) 
+#sample mean for each column
+m <- apply(x,2,mean) 
+#Likelihood ratio test statistics across simulations
+lr <- ((p0/m)^(m*n))*((1-p0)/(1-m))^(n-m*n)
+#the exact critical value for a size-0.05 likelihood ratio test is:
+c <- quantile(lr, c(0.05),type=4)
+
+#support of the power function
+psupport <- seq(from=0.1, to=0.9, length.out = 50) 
+
+#stores the values of the power function
+B1 <- vector('numeric')
+B2 <- vector('numeric')
+
+for (p in psupport) {
+  
+  #generate data
+  x <- matrix(rbernoulli(n*s, p), nrow = n, ncol=s) 
+  #sample mean for each column
+  m <- apply(x,2,mean) 
+  
+  #Likelihood ratio test statistics across simulations
+  lr <- ((p0/m)^(m*n))*((1-p0)/(1-m))^(n-m*n)
+  B1 <- rbind(B1,sum(lr<0.1465)/s)
+  B2 <- rbind(B2,sum(lr<c)/s)
+  B3 <- rbind(B3,sum(lr<0.5)/s)
+}
+
+plot(psupport, B1, ylim = c(0,1),type = "o",col ="blue",ylab="Power Function",xlab = "p",lwd=1.5,panel.first=grid(),xaxp  = c(0, 1, 10),yaxp  = c(0, 1, 20))
+lines(psupport, B2, ylim = c(0,1),type = "o",col ="red",ylab="Power Function",xlab = "p")
+abline(0.05,0)
+
+```
+## Now compare the power function using different values of n
+
+```{r}
+p0 <- 0.6 #null hypothesis
+n1 <- 10 #sample size
+n2 <- 50 #sample size
+n3 <- 200 #sample size
+n4 <- 500 #sample size
+s <- 1000 #number of simulations
+
+#support of the power function
+psupport <- seq(from=0.1, to=0.9, length.out = 50) 
+
+#stores the values of the power function
+B1 <- vector('numeric')
+B2 <- vector('numeric')
+B3 <- vector('numeric')
+B4 <- vector('numeric')
+
+for (p in psupport) {
+  
+  #generate data
+  x1 <- matrix(rbernoulli(n1*s, p), nrow = n1, ncol=s) 
+  x2 <- matrix(rbernoulli(n2*s, p), nrow = n2, ncol=s) 
+  x3 <- matrix(rbernoulli(n3*s, p), nrow = n3, ncol=s) 
+  x4 <- matrix(rbernoulli(n4*s, p), nrow = n4, ncol=s) 
+  #sample mean for each column
+  m1 <- apply(x1,2,mean) 
+  m2 <- apply(x2,2,mean) 
+  m3 <- apply(x3,2,mean) 
+  m4 <- apply(x4,2,mean) 
+  
+  #Likelihood ratio test statistics across simulations
+  lr1 <- ((p0/m1)^(m1*n1))*((1-p0)/(1-m1))^(n1-m1*n1)
+  lr2 <- ((p0/m2)^(m2*n2))*((1-p0)/(1-m2))^(n2-m2*n2)
+  lr3 <- ((p0/m3)^(m3*n3))*((1-p0)/(1-m3))^(n3-m3*n3)
+  lr4 <- ((p0/m4)^(m4*n4))*((1-p0)/(1-m4))^(n4-m4*n4)
+  B1 <- rbind(B1,sum(lr1<0.1465)/s)
+  B2 <- rbind(B2,sum(lr2<0.1465)/s)
+  B3 <- rbind(B3,sum(lr3<0.1465)/s)
+  B4 <- rbind(B4,sum(lr4<0.1465)/s)
+
+}
+
+plot(psupport, B1, ylim = c(0,1),type = "o",col ="blue",ylab="Power Function",xlab = "p",lwd=1.5,panel.first=grid(),xaxp  = c(0, 1, 10),yaxp  = c(0, 1, 20))
+lines(psupport, B2, ylim = c(0,1),type = "o",col ="red")
+lines(psupport, B3, ylim = c(0,1),type = "o",col ="green")
+lines(psupport, B4, ylim = c(0,1),type = "o",col ="cyan")
+abline(0.05,0)
+
+```
+## Importance sampling
+
+```{r}
+s<-1000
+x <- rnorm(s,mean=0,sd=1)
+#simulated probability that X>3
+sum(x>3)/s 
+#theoretical probability that X>3
+1-pnorm(3,mean= 0 ,sd=1)
+```
+```{r}
+s<-1000
+
+#draw from importance distribution
+x <- rnorm(s,mean=3,sd=2)
+
+#importance weight
+w <- dnorm(x,mean=0,sd=1)/dnorm(x,mean=3,sd=2)
+
+#probability that X>3 using importance sampling
+sum((x>3)*w)/s
+```
+```{r}
+s<-100
+x <- rnorm(s,mean=0,sd=1)
+
+#expectation of normal truncated to [0,1]
+sum(x[0<x & x<1])/sum(0<x & x<1)
+
+#true value is 0.459855
+
+#using importance sampling
+#importance weight
+u <- runif(s,min=0,max=1)
+q<- pnorm(1,mean=0,sd=1)-pnorm(0,mean=0,sd=1)
+w <- dnorm(u,mean=0,sd=1)/q
+mean(u*w)
+```
+```{r}
+s<-1000
+x <- rnorm(s,mean=0,sd=1)
+
+#expectation of normal truncated to [2,2.05]
+sum(x[3<x & x<3.05])/sum(3<x & x<3.05)
+
+#using importance sampling
+#importance weight
+u <- runif(s,min=3,max=3.05)
+q<- pnorm(3.05,mean=0,sd=1)-pnorm(3,mean=0,sd=1)
+w <- (dnorm(u,mean=0,sd=1)/q)/(1/0.05)
+mean(u*w)
+```
+
