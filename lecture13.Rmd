@@ -1,0 +1,104 @@
+---
+title: "Lecture 13"
+author: "Chiong"
+date: "11/13/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(dplyr) 
+library(tidyverse)
+library(mvtnorm)
+```
+
+## Generate data
+
+Generate data according to the linear model $y_{i} = 2 - 4x_{i1} + 0.5x_{i2} + \epsilon_{i}$
+
+```{r}
+n <- 1000 #sample size, number of observations
+e <-  rnorm(n,0,sqrt(2)) #error term
+x1 <- rexp(n,0.5) 
+x2 <- rnorm(n,-1,1)
+y <- 2 - 3*x1 + 0.5*x2 + e
+```
+
+## OLS estimator
+
+```{r}
+X <- cbind(1,x1,x2) #stack data in a data matrix
+b <- solve(t(X) %*% X) %*% t(X) %*% y #OLS formula: inv(X'X)X'y
+print(b)
+```
+
+If we repeatedly do this by generating simulated datasets, the average of the OLS estimates across simulations will give us the bias of the OLS estimator, and other sampling properties of the estimator. Try increase or decrease the sample size, n. We know that the OLS estimator is consistent (since it is a Maximum Likelihood estimator). 
+
+```{r}
+#estimating the variance of the error term 
+X <- cbind(1,x1,x2) #stack data in a data matrix
+b <- solve(t(X) %*% X) %*% t(X) %*% y #OLS formula: inv(X'X)X'y
+t(y - X%*%b) %*% (y - X%*%b)/n #average residual sum of squares
+```
+
+## Omitting a variable
+
+Suppose we omit x2 (estimating a misspecified model).
+
+```{r}
+X <- cbind(1,x1) #stack data in a data matrix
+b <- solve(t(X) %*% X) %*% t(X) %*% y #OLS formula: inv(X'X)X'y
+print(b)
+```
+
+Surprisingly, we still get consistent estimate for the coefficient of x1! That is because x1 and x2 are independent. Now assume a data-generating process where x1 and x2 are not independent.
+
+```{r}
+n <- 1000 #sample size, number of observations
+e <-  rnorm(n,0,sqrt(2)) #error term
+sigma <- matrix(c(1,1.5,1.5,3), ncol=2)
+x <- rmvnorm(n, mean=c(0,0), sigma=sigma)
+y <- 2 - 3*x[,1] + 0.5*x[,2] + e
+
+#ols estimator for the correct specification
+X <- cbind(1,x) #stack data in a data matrix
+b <- solve(t(X) %*% X) %*% t(X) %*% y #OLS formula: inv(X'X)X'y
+cat("OLS estimate:", b ,"         ")
+
+#ols estimator omitting x2
+X <- cbind(1,x[,1]) #stack data in a data matrix
+b_omit <- solve(t(X) %*% X) %*% t(X) %*% y #OLS formula: inv(X'X)X'y
+cat("OLS estimate when misspecified:", b_omit)
+```
+## Multicollinearity
+
+When the regressors are perfect collinear, we cannot compute the OLS estimate
+
+```{r}
+n <- 1000 #sample size, number of observations
+e <-  rnorm(n,0,sqrt(2)) #error term
+x1 <- rexp(n,0.5) 
+x2 <- 5*x1 - 2  + rnorm(n,0,0.001)
+y <- 2 - 3*x1 + 0.5*x2 + e
+X <- cbind(1,x1,x2) #stack data in a data matrix
+b <- solve(t(X) %*% X) %*% t(X) %*% y #OLS formula: inv(X'X)X'y
+print(b)
+```
+When the regressors are highly collinear, OLS estimates become highly imprecise
+
+```{r}
+n <- 1000 #sample size, number of observations
+e <-  rnorm(n,0,sqrt(2)) #error term
+x1 <- rexp(n,0.5) 
+x2 <- 5*x1 - 2 + rnorm(n,0,0.1)
+y <- 2 - 3*x1 + 0.5*x2 + e
+X <- cbind(1,x1,x2) #stack data in a data matrix
+b <- solve(t(X) %*% X) %*% t(X) %*% y #OLS formula: inv(X'X)X'y
+print(b)
+```
+When the condition number of X'X is above 30, the regression may have significant multicollinearity
+
+```{r}
+#condition number of the matrix X'X
+1/rcond(t(X) %*% X) 
+```
+

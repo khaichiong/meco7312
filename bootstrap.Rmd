@@ -1,0 +1,69 @@
+---
+title: "Bootstrapping"
+author: "Chiong"
+date: "11/13/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(dplyr) 
+library(tidyverse)
+```
+
+## R Markdown
+
+Setup. Generate data
+
+```{r}
+n <- 500 #sample size
+ld <- 0.5 #rate parameter
+x <- rexp(n,ld) #this is our sample
+```
+
+##  Bootstrapping
+
+```{r}
+B <- 1000 #number of bootstrapped samples
+Xb <- matrix(0, nrow = n, ncol = 0) #collects all bootstrapped samples
+for (b in seq(1,B)) {
+  Xb <- cbind(Xb,sample(x, n, replace = TRUE))
+}
+```
+
+## Compute statistic of interest
+
+```{r}
+#define a function that computes the maximum likelihood estimator of variance 
+svar <- function(X) {
+  return(mean(X^2) - mean(X)^2)
+}
+t_boostrapped <- apply(Xb,2,svar)
+hist(t_boostrapped,breaks = 15)
+```
+
+### Because we know the DGP, we can use monte carlo simulation to obtain the actual sampling distribution 
+
+```{r}
+s <- 1000  #number of simulations
+X <- matrix(rexp(n*s,ld),nrow = n,ncol = s)
+t_actual <- apply(X,2,svar)
+hist(t_actual,breaks = 15)
+```
+
+### Compare the sampling distribution obtained using bootstrapping versus the actual sampling variance
+
+```{r}
+plot(density(t_boostrapped),col="red",main = "")
+lines(density(t_actual),lty=2,lwd = 2,col="blue")
+legend("topright", legend=c("Bootstrapped sampling distribution","Actual sampling distribution"),col=c("red", "blue"), lty=2, cex=0.8)
+```
+
+
+### Compare the sampling variance obtained using bootstrapping versus the actual sampling variance
+
+```{r}
+print(var(t_boostrapped))
+
+print(var(t_actual))
+```
+
