@@ -12,3 +12,5 @@ These are R Markdown files that you can run using RStudio. https://rmarkdown.rst
 * Bootstrap (bootstrap.Rmd): Using non-parametric bootstrapping to approximate the sampling distribution.
 
 * Lecture 13 (lecture13.Rmd): Implementing the Ordinary Least Squares estimator. Multicollinearity. Omitted variable bias.
+
+* Lecture 15 (lecture15.Rmd): Variance-covariance of OLS estimator. Heteroskedastic-consistent estimator of the variance-covariance matrix. Clustered standard errors inference.
