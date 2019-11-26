@@ -1,0 +1,131 @@
+---
+title: "lecture15"
+author: "Chiong"
+date: "11/25/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(dplyr) 
+library(tidyverse)
+library(mvtnorm)
+library(lmtest)
+library(sandwich)
+```
+
+## Generate data
+
+Generate data according to the linear model $y_{i} = 2 - 4x_{i1} + 0.5x_{i2} + \epsilon_{i}$
+
+```{r}
+n <- 1000 #sample size, number of observations
+e <-  rnorm(n,0,1) #error term
+x1 <- rexp(n,0.5) 
+x2 <- rnorm(n,-1,1)
+y <- 2 - 3*x1 + 0.5*x2 + e
+```
+
+## OLS estimator
+
+```{r}
+X <- cbind(1,x1,x2) #stack data in a data matrix
+b <- solve(t(X) %*% X) %*% t(X) %*% y #OLS formula: inv(X'X)X'y
+print(b)
+```
+## Variance-covariance matrix of OLS
+
+
+```{r}
+solve(t(X) %*% X)
+```
+
+```{r}
+#standard errors of the coefficients
+sqrt(diag(solve(t(X) %*% X)))
+```
+
+## Check using built-in OLS estimator
+
+```{r}
+as.data.frame(cbind(y,X))
+ols1 <- lm(y ~ X[,2:3])
+summary(ols1)
+```
+## using data frame
+```{r}
+sample <- as.data.frame(cbind(y,X[,2:3]))
+ols1 <- lm(y ~ x1 + x2, data = sample)
+summary(ols1)
+ols2 <- lm(y ~ x1 + x2 + x1*x2, data = sample)
+summary(ols2)
+```
+## Check that variance increases when covariates become more collinear, and when sample size decreases
+
+```{r}
+n <- 100 #sample size, number of observations
+e <-  rnorm(n,0,1) #error term
+x1 <- rexp(n,0.5) 
+x2 <- x1 + rnorm(n,-1,0.1) 
+y <- 2 - 3*x1 + 0.5*x2 + e
+X <- cbind(1,x1,x2)
+sqrt(diag(solve(t(X) %*% X)))
+```
+
+
+## Estimating the variance of residuals. Variance covariance matrix 
+
+```{r}
+shat <- t(y-X%*%b) %*% (y-X%*%b)/(n-3)
+sqrt(diag(shat[1]*solve(t(X) %*% X)))
+```
+
+## Heteroskedastic errors
+
+```{r}
+n <- 1000 #sample size, number of observations
+x1 <- rexp(n,0.5) 
+x2 <- rnorm(n,-1,1)
+e <-  rnorm(n,0, sqrt(abs(2*x1 + x2))) #error term
+y <- 2 - 3*x1 + 0.5*x2 + e
+```
+
+## OLS estimator is still unbiased under heteroskedastic, but inference will be wrong (incorrect standard errors).
+
+```{r}
+X <- cbind(1,x1,x2) #stack data in a data matrix
+b <- solve(t(X) %*% X) %*% t(X) %*% y #OLS formula: inv(X'X)X'y
+print(b)
+```
+
+## Robust standard errors
+
+```{r}
+#fitted residuals
+ehat <- y - X%*%b
+
+#white's heteroskedastic-robust standard errors
+E <- diag((ehat^2)[,1], nrow = n, ncol = n)
+white <- solve(t(X) %*% X) %*%  (t(X) %*% E %*% X) %*% solve(t(X) %*% X)
+sqrt(diag(white))
+```
+
+Compare to the non-robust standard errors, we might falsely infer that the coefficient b2 is significant when it is not.
+
+```{r}
+shat <- t(y-X%*%b) %*% (y-X%*%b)/(n-3)
+sqrt(diag(shat[1]*solve(t(X) %*% X)))
+```
+
+We get the same numbers using existing packages.
+
+```{r}
+sample <- as.data.frame(cbind(y,X[,2:3]))
+ols1 <- lm(y ~ x1 + x2, data = sample)
+coeftest(ols1, vcov = vcovHC(ols1, "HC0")) 
+```
+
+```{r}
+#testing for heteroskedasticity
+bptest(ols1)
+```
+
