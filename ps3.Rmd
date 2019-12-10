@@ -1,0 +1,197 @@
+---
+title: "PS3"
+author: "Chiong"
+date: "12/9/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(dplyr) 
+library(tidyverse)
+```
+
+#Solutions to Problem Set 3
+
+##Question 4
+
+```{r}
+a0 <- 2 #null hypothesis
+n <- 100 #sample size
+s <- 2000 #number of simulations
+
+#generate data
+x <- matrix(rbeta(n*s, a0,1), nrow = n, ncol=s) 
+#sample product for each column
+m <- apply(x,2,prod) 
+
+#Likelihood ratio test statistics across simulations
+lr <- ((-a0*log(m)/n)^n)*m^(a0 + n/log(m))
+
+#the exact critical value for a size-0.05 likelihood ratio test is:
+c <- quantile(lr, c(0.05))
+
+#compare to the asymptotic critical value
+quantile(lr, c(0.05)) - exp(-qchisq(0.95,df=1)/2)
+```
+
+## For n large, verify that the Likelihood Ratio Test statistic converges in distribution to the Chi-Squared distribution.
+
+```{r}
+hist(-2*log(lr),breaks = 20, probability = TRUE) 
+
+#comparing histogram with the pdf of chi-squared distribution
+z <- seq(min(-2*log(lr)),max(-2*log(lr)),0.01)
+lines(z,dchisq(z, 1),col="blue", lwd=4,lty="dotted")
+```
+
+## Using simulation to derive the power function for the Likelihood Ratio test
+
+```{r}
+a0<- 2
+#support of the power function
+support <- seq(from=0.1, to=3, length.out = 40) 
+
+#stores the values of the power function
+B <- vector('numeric')
+
+for (a in support) {
+  
+  #generate data
+  x <- matrix(rbeta(n*s, a,1), nrow = n, ncol=s) 
+  #sample product for each column
+  m <- apply(x,2,prod) 
+
+  #Likelihood ratio test statistics across simulations
+  lr <- ((-a0*log(m)/n)^n)*m^(a0 + n/log(m))
+
+  #sum(lr<0.1465)/s is the fraction of simulations in which the null is rejected 
+  B <- rbind(B,sum(lr<0.1465)/s)
+  
+}
+
+plot(support, B, ylim = c(0,1),type = "o",col ="blue",ylab="Power Function",xlab = "alpha",lwd=1.5,panel.first=grid(),xaxp  = c(0, 3, 15),yaxp  = c(0, 1, 20))
+```
+
+## Using simulation to derive the power function for the Wald test
+
+```{r}
+a0 <- 2
+
+#support of the power function
+support <- seq(from=0.1, to=3, length.out = 40) 
+
+#stores the values of the power function
+B2 <- vector('numeric')
+
+for (a in support) {
+  
+  #generate data
+  x <- matrix(rbeta(n*s, a,1), nrow = n, ncol=s) 
+  #sample mean for each column
+  m <- apply(x,2,mean) 
+
+  #Wald test statistics across simulations
+  w <- sqrt(n)*(m/(1-m) - a0)/sqrt((a0*(1+a0)^2)/(2+a0))
+
+  #sum(abs(w) > 1.96)/s) is the fraction of simulations in which the null is rejected 
+  B2 <- rbind(B2,sum(abs(w) > 1.96)/s)
+  
+}
+
+plot(support, B, ylim = c(0,1),type = "o",col ="blue",ylab="Power Function",xlab = "alpha",lwd=1,panel.first=grid(),xaxp  = c(0, 3, 15),yaxp  = c(0, 1, 20))
+
+lines(support, B2, ylim = c(0,1),type = "o",col ="red",ylab="Power Function",xlab = "alpha",lwd=1,panel.first=grid(),xaxp  = c(0, 3, 15),yaxp  = c(0, 1, 20))
+```
+## Now compare the power function using different values of n
+
+```{r}
+#support of the power function
+support <- seq(from=0.1, to=3, length.out = 40) 
+
+#stores the values of the power function
+B1 <- vector('numeric')
+B2 <- vector('numeric')
+ 
+s <- 2000
+n1 <- 20
+n2 <- 100
+
+for (a in support) {
+  
+  #generate data
+  x1 <- matrix(rbeta(n1*s, a,1), nrow = n1, ncol=s) 
+  x2 <- matrix(rbeta(n2*s, a,1), nrow = n2, ncol=s) 
+  #sample mean for each column
+  m1 <- apply(x1,2,mean) 
+  m2 <- apply(x2,2,mean) 
+
+  #Wald test statistics across simulations
+  w1 <- sqrt(n1)*(m1/(1-m1) - a0)/sqrt((a0*(1+a0)^2)/(2+a0))
+  w2 <- sqrt(n2)*(m2/(1-m2) - a0)/sqrt((a0*(1+a0)^2)/(2+a0))
+
+  #sum(abs(w1) > 1.96)/s) is the fraction of simulations in which the null is rejected 
+  B1 <- rbind(B1,sum(abs(w1) > 1.96)/s)
+  B2 <- rbind(B2,sum(abs(w2) > 1.96)/s)
+  
+}
+
+plot(support, B2, ylim = c(0,1),type = "o",col ="blue",ylab="Power Function",xlab = "alpha",lwd=1,panel.first=grid(),xaxp  = c(0, 3, 15),yaxp  = c(0, 1, 20))
+lines(support, B1, ylim = c(0,1),type = "o",col ="red",ylab="Power Function",xlab = "alpha",lwd=1,panel.first=grid(),xaxp  = c(0, 3, 15),yaxp  = c(0, 1, 20))
+
+```
+
+# Question 5. Uniform distribution
+## Using simulation to derive the power function for the Likelihood Ratio test
+
+```{r}
+#support of the power function
+support <- seq(from=0, to=4, length.out = 40) 
+
+#stores the values of the power function
+B <- vector('numeric')
+n <- 50
+s <- 1000
+theta0 <- 2
+
+for (u in support) {
+  
+  #generate data
+  x <- matrix(runif(n*s, 0,u), nrow = n, ncol=s) 
+  #sample max for each column
+  m <- apply(x,2,max) 
+
+  B <- rbind(B,sum(m>theta0)/s)
+  
+}
+
+plot(support, B, ylim = c(0,1),type = "o",col ="blue",ylab="Power Function",xlab = "upper bound",lwd=1.5,panel.first=grid(),xaxp  = c(0, 4, 10),yaxp  = c(0, 1, 20))
+```
+
+## Using simulation to derive the power function for the Wald test
+
+```{r}
+#support of the power function
+support <- seq(from=0, to=4, length.out = 40) 
+
+#stores the values of the power function
+B2 <- vector('numeric')
+n <- 50
+s <- 1000
+theta0 <- 2
+
+for (u in support) {
+  
+  #generate data
+  x <- matrix(runif(n*s, 0,u), nrow = n, ncol=s) 
+  #sample max for each column
+  m <- apply(x,2,mean) 
+
+  w <- sqrt(n)*(2*m - theta0)/sqrt((theta0^2)/3)
+  B2 <- rbind(B2,sum(w>1.64)/s)
+  
+}
+
+plot(support, B, ylim = c(0,1),type = "o",col ="blue",ylab="Power Function",xlab = "upper bound",lwd=1.5,panel.first=grid(),xaxp  = c(0, 4, 10),yaxp  = c(0, 1, 20))
+lines(support, B2, ylim = c(0,1),type = "o",col ="red",ylab="Power Function",xlab = "upper bound",lwd=1.5,panel.first=grid(),xaxp  = c(0, 4, 10),yaxp  = c(0, 1, 20))
+```
+
