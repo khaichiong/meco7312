@@ -1,9 +1,10 @@
 # meco7312
 Codes for UT Dallas' MECO7312
 
-These are R Markdown files that you can run using RStudio. https://rmarkdown.rstudio.com/
+.Rmd (R Markdown) run using RStudio.
+.ipynb (Jupyter Notebook) run using Google Colab. 
 
-* Lecture 2 (lecture2.Rmd): Sampling from a scalar random variable using probability integral transformation.
+* Lecture 2 (lecture2.Rmd, Lecture2.ipynb): Sampling from a scalar random variable using probability integral transformation.
 
 * Lecture 4 (lecture4.Rmd): Gibbs sampling, sampling from a multivariate Normal.
 
