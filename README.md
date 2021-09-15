@@ -6,7 +6,7 @@ Codes for UT Dallas' MECO7312
 
 * Lecture 2 (lecture2.Rmd, Lecture2.ipynb): Sampling from a scalar random variable using probability integral transformation.
 
-* Lecture 4 (lecture4.Rmd): Gibbs sampling, sampling from a multivariate Normal.
+* Lecture 4 (lecture4.Rmd, Lecture4.ipynb): Gibbs sampling, sampling from a multivariate Normal.
 
 * Lecture 12 (lecture12.Rmd): Monte Carlo sampling. Importance sampling. Exact and asymptotic tests and power functions.
 
