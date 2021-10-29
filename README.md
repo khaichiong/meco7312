@@ -8,6 +8,14 @@ Codes for UT Dallas' MECO7312
 
 * Lecture 4 (lecture4.Rmd, Lecture4.ipynb): Gibbs sampling, sampling from a multivariate Normal.
 
+* Lecture 5 (lecture5.Rmd, Lecture5.ipynb): Sampling distributions of estimators. Order statistics.
+
+* Lecture 6 (lecture6.Rmd, Lecture6.ipynb): Asymptotics. Central Limit Theorem. Delta Method
+
+* Lecture 7 (lecture7.ipynb): Optimal GMM.
+
+* Lecture 8 (lecture8.ipynb): Monte-carlo simulation of bias-variance trade-off
+
 * Lecture 12 (lecture12.Rmd): Monte Carlo sampling. Importance sampling. Exact and asymptotic tests and power functions.
 
 * Bootstrap (bootstrap.Rmd): Using non-parametric bootstrapping to approximate the sampling distribution.
