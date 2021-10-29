@@ -13,9 +13,9 @@ Supplementary codes for UT Dallas' MECO7312
 
 * Lecture 6 (lecture6.Rmd, Lecture6.ipynb): Asymptotics. Central Limit Theorem. Delta Method
 
-* Lecture 7 (lecture7.ipynb): Optimal GMM.
+* Lecture 7 (Lecture7.ipynb): Optimal GMM.
 
-* Lecture 8 (lecture8.ipynb): Monte-carlo simulation of bias-variance trade-off
+* Lecture 8 (Lecture8.ipynb): Monte-carlo simulation of bias-variance trade-off
 
 * Lecture 12 (lecture12.Rmd): Monte Carlo sampling. Importance sampling. Exact and asymptotic tests and power functions.
 
