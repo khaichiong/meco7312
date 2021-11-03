@@ -17,6 +17,8 @@ Supplementary codes for UT Dallas' MECO7312
 
 * Lecture 8 (Lecture8.ipynb): Monte-carlo simulation of bias-variance trade-off
 
+* Lecture 11 (L11_.ipynb): Likelihood-ratio test. Wilks' Theorem. Power function
+
 * Lecture 12 (lecture12.Rmd): Monte Carlo sampling. Importance sampling. Exact and asymptotic tests and power functions.
 
 * Bootstrap (bootstrap.Rmd): Using non-parametric bootstrapping to approximate the sampling distribution.
