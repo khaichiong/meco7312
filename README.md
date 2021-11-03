@@ -1,5 +1,5 @@
 # meco7312
-Supplementary codes for UT Dallas' MECO7312
+Supplementary codes for MECO7312, Advanced Statistics and Probability
 
 .Rmd (R Markdown) using RStudio.
 
