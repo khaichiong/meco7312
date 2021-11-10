@@ -17,7 +17,9 @@ Supplementary codes for MECO7312, Advanced Statistics and Probability
 
 * Lecture 8 (L8.ipynb): Monte-carlo simulation of bias-variance trade-off
 
-* Lecture 11 (L11_.ipynb): Likelihood-ratio test. Wilks' Theorem. Power function
+* Lecture 11 (L11_.ipynb): Likelihood-ratio test. Wilks' Theorem. Power function. Exact and asymptotic tests.
+
+* L12_bootstrap.ipynb: Using non-parametric bootstrapping to approximate the sampling distribution.
 
 * Lecture 12 (lecture12.Rmd): Monte Carlo sampling. Importance sampling. Exact and asymptotic tests and power functions.
 
